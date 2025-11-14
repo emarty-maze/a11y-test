@@ -185,9 +185,11 @@ After running tests, you'll find in your output directory:
 a11y-reports/
 ├── homepage-chromium-2025-01-13-17-30-00.html    ← Open this in browser
 ├── homepage-chromium-2025-01-13-17-30-00.json    ← Raw data
+├── homepage-chromium-2025-01-13-17-30-00.md      ← Copy to Confluence
 ├── homepage-chromium-2025-01-13-17-30-00.png     ← Screenshot
 ├── about-chromium-2025-01-13-17-30-15.html
 ├── about-chromium-2025-01-13-17-30-15.json
+├── about-chromium-2025-01-13-17-30-15.md
 └── about-chromium-2025-01-13-17-30-15.png
 ```
 
@@ -197,6 +199,12 @@ a11y-reports/
 - Specific elements with issues
 - Links to WCAG documentation
 - How to fix each issue
+
+**Use the Markdown (.md) files** to:
+- Copy/paste directly into Confluence pages
+- Add to GitHub/GitLab issues or pull requests
+- Include in documentation
+- Share formatted reports via email or Slack
 
 ## Tips & Tricks
 

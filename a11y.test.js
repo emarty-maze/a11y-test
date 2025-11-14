@@ -376,12 +376,128 @@ function generateHTMLReport(results, pageName, url, testName) {
   `;
 }
 
+// Generate Markdown report for Confluence
+function generateMarkdownReport(results, pageName, url, testName) {
+  const { violations, passes, incomplete, inapplicable } = results;
+  const timestamp = new Date().toLocaleString();
+
+  // Group violations by severity
+  const violationsBySeverity = {
+    critical: violations.filter(v => v.impact === 'critical'),
+    serious: violations.filter(v => v.impact === 'serious'),
+    moderate: violations.filter(v => v.impact === 'moderate'),
+    minor: violations.filter(v => v.impact === 'minor')
+  };
+
+  let markdown = `# Accessibility Test Report: ${pageName}\n\n`;
+  markdown += `**Test Name:** ${testName}\n`;
+  markdown += `**URL:** ${url}\n`;
+  markdown += `**Date:** ${timestamp}\n`;
+  markdown += `**Axe Version:** ${results.testEngine.version}\n\n`;
+
+  markdown += `---\n\n`;
+
+  // Summary table
+  markdown += `## Summary\n\n`;
+  markdown += `| Metric | Count |\n`;
+  markdown += `|--------|-------|\n`;
+  markdown += `| 🔴 **Violations** | **${violations.length}** |\n`;
+  markdown += `| ✅ Passes | ${passes.length} |\n`;
+  markdown += `| ⚠️ Incomplete | ${incomplete.length} |\n`;
+  markdown += `| ℹ️ Inapplicable | ${inapplicable.length} |\n\n`;
+
+  // Violations by severity
+  if (violations.length > 0) {
+    markdown += `### Violations by Severity\n\n`;
+    markdown += `| Severity | Count |\n`;
+    markdown += `|----------|-------|\n`;
+    markdown += `| 🔴 Critical | ${violationsBySeverity.critical.length} |\n`;
+    markdown += `| 🟠 Serious | ${violationsBySeverity.serious.length} |\n`;
+    markdown += `| 🟡 Moderate | ${violationsBySeverity.moderate.length} |\n`;
+    markdown += `| ⚪ Minor | ${violationsBySeverity.minor.length} |\n\n`;
+
+    markdown += `---\n\n`;
+
+    // Detailed violations
+    markdown += `## Violations Details\n\n`;
+
+    ['critical', 'serious', 'moderate', 'minor'].forEach(severity => {
+      const severityViolations = violationsBySeverity[severity];
+      if (severityViolations.length > 0) {
+        const emoji = severity === 'critical' ? '🔴' :
+                     severity === 'serious' ? '🟠' :
+                     severity === 'moderate' ? '🟡' : '⚪';
+
+        markdown += `### ${emoji} ${severity.charAt(0).toUpperCase() + severity.slice(1)} Issues (${severityViolations.length})\n\n`;
+
+        severityViolations.forEach((violation, index) => {
+          markdown += `#### ${index + 1}. ${violation.id}\n\n`;
+          markdown += `**Impact:** ${violation.impact}\n\n`;
+          markdown += `**Description:** ${violation.help}\n\n`;
+          markdown += `${violation.description}\n\n`;
+          markdown += `**Nodes Affected:** ${violation.nodes.length}\n\n`;
+          markdown += `**WCAG Reference:** [${violation.id}](${violation.helpUrl})\n\n`;
+
+          // Show first few affected elements
+          if (violation.nodes.length > 0) {
+            markdown += `**Affected Elements:**\n\n`;
+            const nodesToShow = Math.min(3, violation.nodes.length);
+            for (let i = 0; i < nodesToShow; i++) {
+              const node = violation.nodes[i];
+              markdown += `${i + 1}. \`${node.html.replace(/`/g, '\\`')}\`\n`;
+
+              // Add failure messages if available
+              const allChecks = [
+                ...(node.any || []),
+                ...(node.all || []),
+                ...(node.none || [])
+              ];
+              const meaningfulChecks = allChecks.filter(check =>
+                (check.message && check.message.trim()) || (check.id && check.id.trim())
+              );
+
+              if (meaningfulChecks.length > 0) {
+                meaningfulChecks.forEach(check => {
+                  markdown += `   - ${check.message || check.id}\n`;
+                });
+              }
+              markdown += `\n`;
+            }
+
+            if (violation.nodes.length > nodesToShow) {
+              markdown += `*...and ${violation.nodes.length - nodesToShow} more*\n\n`;
+            }
+          }
+
+          markdown += `---\n\n`;
+        });
+      }
+    });
+  } else {
+    markdown += `## ✅ No Violations Found\n\n`;
+    markdown += `All accessibility checks passed!\n\n`;
+  }
+
+  // Incomplete checks
+  if (incomplete.length > 0) {
+    markdown += `## ⚠️ Incomplete Checks (${incomplete.length})\n\n`;
+    markdown += `These checks require manual review:\n\n`;
+
+    incomplete.forEach((item, index) => {
+      markdown += `### ${index + 1}. ${item.id}\n\n`;
+      markdown += `**Description:** ${item.help}\n\n`;
+      markdown += `${item.description}\n\n`;
+      markdown += `**Nodes to Review:** ${item.nodes.length}\n\n`;
+      markdown += `**Reference:** [${item.id}](${item.helpUrl})\n\n`;
+      markdown += `---\n\n`;
+    });
+  }
+
+  return markdown;
+}
+
 // Test a single URL
-async function testUrl(browser, url, config, scenario = null) {
-  // Create a new context (required by AxeBuilder)
-  const context = await browser.newContext({
-    ignoreHTTPSErrors: true,
-  });
+async function testUrl(context, url, config, scenario = null, isAuthenticated = false) {
   const page = await context.newPage();
 
   try {
@@ -391,16 +507,11 @@ async function testUrl(browser, url, config, scenario = null) {
     console.log(`\n🔍 Testing: ${testName}`);
     console.log(`   URL: ${fullUrl}`);
 
-    // Handle password protection if needed
-    if (config.password) {
-      await navigateWithPassword(page, fullUrl, config.password);
-    } else {
-      // Use 'load' instead of 'networkidle' to avoid timeouts on sites with continuous requests
-      await page.goto(fullUrl, {
-        waitUntil: 'load',
-        timeout: 60000 // Increase timeout to 60 seconds
-      });
-    }
+    // Navigate to the URL (authentication already handled if needed)
+    await page.goto(fullUrl, {
+      waitUntil: 'load',
+      timeout: 60000 // Increase timeout to 60 seconds
+    });
 
     // Wait for page to be fully loaded
     await page.waitForLoadState('domcontentloaded');
@@ -620,6 +731,17 @@ async function testUrl(browser, url, config, scenario = null) {
     fs.writeFileSync(htmlReportPath, htmlReport, 'utf8');
     console.log(`   📄 HTML report: ${htmlReportPath}`);
 
+    // Save Markdown report (for Confluence)
+    const markdownReport = generateMarkdownReport(
+      modifiedResults,
+      testName,
+      page.url(),
+      config.name || 'Accessibility Test'
+    );
+    const markdownReportPath = path.join(reportsDir, `${reportBaseName}.md`);
+    fs.writeFileSync(markdownReportPath, markdownReport, 'utf8');
+    console.log(`   📝 Markdown report: ${markdownReportPath}`);
+
     // Take screenshot
     const screenshotPath = path.join(reportsDir, `${reportBaseName}.png`);
     await page.screenshot({ path: screenshotPath, fullPage: true });
@@ -695,7 +817,6 @@ async function testUrl(browser, url, config, scenario = null) {
     };
   } finally {
     await page.close();
-    await context.close();
   }
 }
 
@@ -753,19 +874,37 @@ async function main() {
   const browser = await browserType.launch({ headless: config.headless });
 
   try {
-    const results = [];
+    // Create a single browser context for all tests
+    const context = await browser.newContext({
+      ignoreHTTPSErrors: true,
+    });
 
-    // Test scenarios or single URL
-    if (config.scenarios && config.scenarios.length > 0) {
-      console.log(`\n📋 Testing ${config.scenarios.length} scenario(s)...\n`);
-      for (const scenario of config.scenarios) {
-        const result = await testUrl(browser, null, config, scenario);
+    try {
+      // Handle password authentication once at the beginning
+      let isAuthenticated = false;
+      if (config.password) {
+        console.log('\n🔐 Authenticating...');
+        const authPage = await context.newPage();
+        const authUrl = config.baseUrl || config.url;
+        await navigateWithPassword(authPage, authUrl, config.password);
+        await authPage.close();
+        isAuthenticated = true;
+        console.log('✅ Authentication successful - session will be reused for all tests\n');
+      }
+
+      const results = [];
+
+      // Test scenarios or single URL
+      if (config.scenarios && config.scenarios.length > 0) {
+        console.log(`📋 Testing ${config.scenarios.length} scenario(s)...\n`);
+        for (const scenario of config.scenarios) {
+          const result = await testUrl(context, null, config, scenario, isAuthenticated);
+          results.push(result);
+        }
+      } else {
+        const result = await testUrl(context, config.url, config, null, isAuthenticated);
         results.push(result);
       }
-    } else {
-      const result = await testUrl(browser, config.url, config);
-      results.push(result);
-    }
 
     // Print summary
     console.log('\n' + '='.repeat(60));
@@ -794,13 +933,16 @@ async function main() {
     console.log(`Violations Meeting Threshold: ${totalFailing}`);
     console.log('='.repeat(60));
 
-    // Exit with error code if any violations meet the fail threshold
-    if (totalFailing > 0) {
-      console.log(`\n❌ Tests failed: ${totalFailing} violations at ${config.failOn} level or above`);
-      process.exit(1);
-    } else {
-      console.log('\n✅ All tests passed!');
-      process.exit(0);
+      // Exit with error code if any violations meet the fail threshold
+      if (totalFailing > 0) {
+        console.log(`\n❌ Tests failed: ${totalFailing} violations at ${config.failOn} level or above`);
+        process.exit(1);
+      } else {
+        console.log('\n✅ All tests passed!');
+        process.exit(0);
+      }
+    } finally {
+      await context.close();
     }
   } catch (error) {
     console.error(`\n❌ Fatal error: ${error.message}`);

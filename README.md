@@ -201,19 +201,29 @@ You can define custom actions to perform before running accessibility tests:
 
 ## Output Reports
 
-The script generates three types of output for each test:
+The script generates four types of output for each test:
 
 1. **HTML Report** - Visual report with detailed violation information
 2. **JSON Report** - Machine-readable report with full axe-core results
-3. **Screenshot** - Full-page screenshot of the tested page
+3. **Markdown Report** - Formatted report for easy copy/paste into Confluence or documentation
+4. **Screenshot** - Full-page screenshot of the tested page
 
 All reports are saved to the output directory with timestamped filenames:
 ```
 a11y-reports/
 ├── homepage-chromium-2025-01-13-17-30-00.html
 ├── homepage-chromium-2025-01-13-17-30-00.json
+├── homepage-chromium-2025-01-13-17-30-00.md
 └── homepage-chromium-2025-01-13-17-30-00.png
 ```
+
+### Using Markdown Reports in Confluence
+
+The `.md` files can be directly copied and pasted into Confluence:
+1. Open the `.md` file in any text editor
+2. Copy the entire contents
+3. In Confluence, create a new page or edit an existing one
+4. Paste the markdown - Confluence will automatically format it with tables, headings, and links
 
 ## Understanding Results
 
