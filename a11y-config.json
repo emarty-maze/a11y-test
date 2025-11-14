@@ -1,0 +1,38 @@
+{
+  "baseUrl": "https://toms.com",
+  "password": "",
+  "outputDir": "./a11y-reports",
+  "browser": "chromium",
+  "headless": false,
+  "exclude": [
+    "#onetrust-consent-sdk"
+  ],
+  "scenarios": [
+    {
+      "name": "Homepage",
+      "path": "/"
+    },
+    {
+      "name": "Women",
+      "path": "/collections/women"
+    },
+    {
+      "name": "Men",
+      "path": "/collections/men"
+    },
+    {
+      "name": "Product Page",
+      "path": "/en-us/products/men-baja-2-0-slip-on-sneaker-walnut-brown-canvas-10022686",
+      "actions": [
+        {
+          "type": "wait",
+          "duration": 2000
+        },
+        {
+          "type": "click",
+          "selector": "#maincontent > div > div.variant-03cab4b3ed16401a8bb81dbe93874c1c > div > div.builder-25cfbc5244cb43598a7fc28233af9dec.builder-block > div.builder-7702ad02c2a24b749da840525b39a7ed.builder-block > div.builder-36f41e13e85e4c81862a4d1d49daef58.builder-block > div > div.product-color-options-grid.pb-\\[25px\\] > div:nth-child(1) > a"
+        }
+      ]
+    }
+  ]
+}

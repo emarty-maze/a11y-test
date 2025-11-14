@@ -1,0 +1,17 @@
+{
+  "name": "a11y-test",
+  "version": "1.0.0",
+  "main": "a11y-test.js",
+  "type": "module",
+  "scripts": {
+    "a11y:test": "node a11y-test.js",
+    "a11y:help": "node a11y-test.js --help"
+  },
+  "author": "Erik Marty",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@axe-core/playwright": "^4.11.0",
+    "playwright": "^1.56.1"
+  }
+}
