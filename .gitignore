@@ -1,4 +1,20 @@
+# Dependencies
 node_modules
+
+# Test reports
 a11y-reports
-.DS_Store
+
+# User config files (keep example)
 a11y-config.json
+
+# OS files
+.DS_Store
+
+# npm
+*.log
+npm-debug.log*
+.npm
+
+# IDE
+.vscode
+.idea

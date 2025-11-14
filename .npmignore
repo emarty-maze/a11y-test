@@ -1,0 +1,15 @@
+# Don't publish these to npm
+a11y-reports/
+a11y-config.json
+node_modules/
+.DS_Store
+*.log
+.vscode/
+.idea/
+.git/
+.github/
+
+# Test files
+test/
+tests/
+*.test.js.backup

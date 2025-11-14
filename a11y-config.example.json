@@ -1,0 +1,45 @@
+{
+  "baseUrl": "https://example.com",
+  "password": "",
+  "outputDir": "./a11y-reports",
+  "browser": "chromium",
+  "headless": true,
+  "failOn": "serious",
+  "treatIncompleteAsViolations": false,
+  "exclude": [
+    "#cookie-banner",
+    ".third-party-widget"
+  ],
+  "scenarios": [
+    {
+      "name": "Homepage",
+      "path": "/"
+    },
+    {
+      "name": "About Page",
+      "path": "/about"
+    },
+    {
+      "name": "Contact Page",
+      "path": "/contact"
+    },
+    {
+      "name": "Product Page with Interaction",
+      "path": "/products/sample",
+      "actions": [
+        {
+          "type": "wait",
+          "duration": 2000
+        },
+        {
+          "type": "click",
+          "selector": ".color-option:first-child"
+        },
+        {
+          "type": "wait",
+          "duration": 500
+        }
+      ]
+    }
+  ]
+}

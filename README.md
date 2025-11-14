@@ -15,31 +15,49 @@ A portable, framework-agnostic accessibility testing tool that can test any webs
 
 ## Installation
 
+### As an npm Package (Recommended)
+
 ```bash
-# Install dependencies (if not already installed)
-npm install playwright @axe-core/playwright
+# Global installation (use anywhere)
+npm install -g @emarty/a11y-test
+
+# Or local installation (project-specific)
+npm install --save-dev @emarty/a11y-test
 ```
+
+### Manual Installation
+
+```bash
+# Clone and install dependencies
+git clone <repository-url>
+cd a11y
+npm install
+```
+
+See [INSTALLATION.md](INSTALLATION.md) for detailed installation instructions and publishing guide.
 
 ## Quick Start
 
 ### Test a Single URL
 
 ```bash
-node testing/standalone-a11y-test.js --url https://example.com
+# If installed globally
+a11y-test --url https://example.com
+
+# If installed locally or using directly
+node a11y.test.js --url https://example.com
 ```
 
 ### Test with Password Protection
 
 ```bash
-node testing/standalone-a11y-test.js \
-  --url https://staging.example.com \
-  --password mypassword
+a11y-test --url https://staging.example.com --password mypassword
 ```
 
 ### Test Multiple Pages with Config File
 
 ```bash
-node testing/standalone-a11y-test.js --config my-test-config.json
+a11y-test --config my-test-config.json
 ```
 
 ## Command-Line Options

@@ -1,17 +1,58 @@
 {
-  "name": "a11y-test",
+  "name": "@emarty-maze/a11y-test",
   "version": "1.0.0",
-  "main": "a11y-test.js",
+  "description": "Standalone accessibility testing tool for any website using axe-core and Playwright. Test WCAG 2.0/2.1 compliance with configurable scenarios, password protection support, and multiple output formats (HTML, JSON, Markdown).",
+  "main": "a11y.test.js",
   "type": "module",
-  "scripts": {
-    "a11y:test": "node a11y-test.js",
-    "a11y:help": "node a11y-test.js --help"
+  "bin": {
+    "a11y-test": "./a11y.test.js"
   },
+  "scripts": {
+    "test": "node a11y.test.js --help"
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "wcag",
+    "axe",
+    "axe-core",
+    "playwright",
+    "testing",
+    "automation",
+    "compliance",
+    "wcag2a",
+    "wcag2aa",
+    "wcag21",
+    "web-accessibility",
+    "accessibility-testing"
+  ],
   "author": "Erik Marty",
   "license": "ISC",
-  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emarty-maze/a11y-test.git"
+  },
+  "bugs": {
+    "url": "https://github.com/emarty-maze/a11y-test/issues"
+  },
+  "homepage": "https://github.com/emarty-maze/a11y-test#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "a11y.test.js",
+    "README.md",
+    "QUICK-START.md",
+    "a11y-config.example.json"
+  ],
   "dependencies": {
     "@axe-core/playwright": "^4.11.0",
     "playwright": "^1.56.1"
+  },
+  "peerDependencies": {
+    "playwright": ">=1.40.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
